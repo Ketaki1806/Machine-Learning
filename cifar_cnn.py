@@ -64,7 +64,7 @@ class Net(nn.Module):
         x = self.dropout1(x)
         # x = torch.flatten(x, 1)
         x = x.view(x.shape[0],-1)
-        x = self.fc1(x)  
+        x = self.fc1(x)
         x = F.relu(x)
         x = self.dropout2(x)
         x = self.fc2(x)
@@ -73,7 +73,7 @@ class Net(nn.Module):
 def train(model, use_cuda, train_loader, optimizer, epoch):
 
     model.train()  # Tell the model to prepare for training
-    
+
     for batch_idx, (data, target) in enumerate(train_loader):  # Get the batch
 
         # Converting the target to one-hot-encoding from categorical encoding
@@ -81,20 +81,20 @@ def train(model, use_cuda, train_loader, optimizer, epoch):
 
         # y_onehot = torch.zeros([target.shape[0], 10])  # Zero vector of shape [64, 10]
         # y_onehot[range(target.shape[0]), target.long()] = 1
-        
+
 
         # data = data.view([data.shape[0], 3072])
 
         if use_cuda:
             data, target = data.cuda(), target.cuda()  # Sending the data to the GPU
-                
+
         optimizer.zero_grad()  # Setting the cumulative gradients to 0
-        output = model(data.float()) 
+        output = model(data.float())
         # print(output.shape,target.shape)# Forward pass through the model
         loss = F.cross_entropy(output,target.long())  # Calculating the loss
         loss.backward()  # Calculating the gradients of the model. Note that the model has not yet been updated.
         optimizer.step()  # Updating the model parameters. Note that this does not remove the stored gradients!
-        
+
         if batch_idx % 100 == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
