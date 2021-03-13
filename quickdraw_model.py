@@ -33,7 +33,7 @@ class customDatasetClass(Dataset):
 
     def __getitem__(self, item):
 
-        image = Image.fromarray(np.float32(np.array(Image.fromarray(plt.imread(self.allImagePaths[item])[:, :, 3]).resize((128, 128))) > 0))
+        image = Image.fromarray(np.float32(np.array(Image.fromarray(plt.imread(self.allImagePaths[item])[:, :, 3]).resize((64, 64))) > 0))
         target = self.allTargets[item]
         image = self.transforms(image)
 
@@ -53,7 +53,7 @@ class Net(nn.Module):
         # self.conv3 = nn.Conv2d(64, 32, 2, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(3600, 100)
+        self.fc1 = nn.Linear(784, 100)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
@@ -157,21 +157,21 @@ def main():
         shuffle=True
     )
     model=Net()
-    optimizer = optim.Adam(model.parameters(), lr=0.0001)  # Choose the optimizer and the set the learning rate
+    optimizer = optim.Adam(model.parameters(), lr=0.001)  # Choose the optimizer and the set the learning rate
     testloader = DataLoader(
         customDatasetClass('C:/Users\DELL\Desktop\ML\Machine-Learning\GoogleDataImages_test'),
         batch_size=64,
         num_workers=2,
         shuffle=True
     )
-    for epoch in range(1, 1 + 1):
+    for epoch in range(1, 15 + 1):
         train(model, use_cuda, trainloader, optimizer, epoch)  # Train the network
         test(model, use_cuda, testloader)  # Test the network
 
     os.makedirs("data_model", exist_ok=True)
     os.makedirs("save_model", exist_ok=True)
     torch.save(model.state_dict(), "data_model/quickdraw_cnn_epoch.pt")
-    dummy_input=torch.zeros(1,1,128,128)
+    dummy_input=torch.zeros(1,1,64,64)
     torch.onnx.export(model,dummy_input,"save_model/model.onnx", verbose = True, input_names = ['data'], output_names = ['output'])
     model.load_state_dict(torch.load('data_model/quickdraw_cnn_epoch.pt'))
 
